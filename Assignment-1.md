@@ -1,5 +1,5 @@
-Assignment 1, Language development in Autism Spectrum Disorder (ASD) - Brushing up your code skills
-===================================================================================================
+hello \# Assignment 1, Language development in Autism Spectrum Disorder
+(ASD) - Brushing up your code skills
 
 In this first part of the assignment we will brush up your programming
 skills, and make you familiar with the data sets you will be analysing
