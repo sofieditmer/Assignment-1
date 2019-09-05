@@ -94,7 +94,7 @@ directory (the directory with your data and code for these assignments)
 is the project directory.
 
 ``` r
-pacman::p_load(tidyverse,janitor)
+pacman::p_load(tidyverse,janitor,stringr)
 ```
 
 Load the three data sets, after downloading them from dropbox and saving
@@ -141,10 +141,9 @@ package. There are always multiple ways of solving any problem and no
 absolute best method.
 
 ``` r
-plot(demographic$Ethnicity, demographic$Diagnosis)
+#First we rename the first two columns in the demographic data frame to match the two other data frames
+demographic <- rename(demographic, SUBJ = Child.ID, VISIT = Visit)
 ```
-
-![](Assignment-1_files/figure-markdown_github/unnamed-chunk-3-1.png)
 
 2b. Find a way to homogeneize the way “visit” is reported (visit1
 vs. 1).
@@ -152,6 +151,14 @@ vs. 1).
 Tip: The stringr package is what you need. str\_extract () will allow
 you to extract only the digit (number) from a string, by using the
 regular expression \\d.
+
+``` r
+#First we remove all of the strings from the VISIT column so it only gives us numbers and no letters
+length_utterance$VISIT <- str_extract(length_utterance$VISIT, "\\d")
+
+#Now we need to remove all of the string and the period sign from the VISIT colum in the worddata dataframe
+worddata$VISIT <- str_extract(worddata$VISIT, "\\d")
+```
 
 2c. We also need to make a small adjustment to the content of the
 Child.ID coloumn in the demographic data. Within this column, names that
@@ -165,6 +172,15 @@ either have one line of code for each child name that is to be changed
 (easier, more typing) or specify the pattern that you want to match
 (more complicated: look up “regular expressions”, but less typing)
 
+``` r
+#We remove all periods from all dataframes by using the regular expression
+demographic$SUBJ <- str_replace_all(demographic$SUBJ, "[:punct:]", "")
+
+length_utterance$SUBJ <- str_replace_all(length_utterance$SUBJ, "[:punct:]", "")
+
+worddata$SUBJ <- str_replace_all(worddata$SUBJ, "[:punct:]", "")
+```
+
 2d. Now that the nitty gritty details of the different data sets are
 fixed, we want to make a subset of each data set only containig the
 variables that we wish to use in the final data set. For this we use the
@@ -172,8 +188,15 @@ tidyverse package dplyr, which contains the function select().
 
 The variables we need are: \* Child.ID, \* Visit, \* Diagnosis, \*
 Ethnicity, \* Gender, \* Age, \* ADOS,  
-\* MullenRaw, \* ExpressiveLangRaw, \* Socialization \* MOT\_MLU, \*
-CHI\_MLU, \* types\_MOT, \* types\_CHI, \* tokens\_MOT, \* tokens\_CHI.
+\* MullenRaw, \* ExpressiveLangRaw, \* Socialization
+
+-   MOT\_MLU,
+-   CHI\_MLU,
+
+-   types\_MOT,
+-   types\_CHI,
+-   tokens\_MOT,
+-   tokens\_CHI.
 
 Most variables should make sense, here the less intuitive ones. \* ADOS
 (Autism Diagnostic Observation Schedule) indicates the severity of the
@@ -194,6 +217,14 @@ responsiveness, as measured by Vineland
 Feel free to rename the variables into something you can remember
 (i.e. nonVerbalIQ, verbalIQ)
 
+``` r
+subset_demographic <- select(demographic, SUBJ, VISIT, Diagnosis, Ethnicity, Gender, Age, ADOS, MullenRaw, ExpressiveLangRaw, Socialization)
+
+subset_lengthutterance <- select(length_utterance, SUBJ, VISIT, MOT_MLU, CHI_MLU)
+
+subset_worddata <- select(worddata, SUBJ, VISIT, types_MOT, types_CHI, tokens_MOT, tokens_CHI)
+```
+
 2e. Finally we are ready to merge all the data sets into just one.
 
 Some things to pay attention to: \* make sure to check that the merge
@@ -201,6 +232,14 @@ has included all relevant data (e.g. by comparing the number of rows) \*
 make sure to understand whether (and if so why) there are NAs in the
 dataset (e.g. some measures were not taken at all visits, some
 recordings were lost or permission to use was withdrawn)
+
+``` r
+#We can only merge two data frames at a time, so we start by merging demographic with lengthofutterance
+MergedData <- merge(subset_demographic, subset_lengthutterance)
+
+#Now we merge with the worddata
+MergedData <- merge(MergedData, subset_worddata)
+```
 
 2f. Only using clinical measures from Visit 1 In order for our models to
 be useful, we want to miimize the need to actually test children as they
@@ -216,6 +255,23 @@ dataset \* rename the clinical variables (e.g. ADOS to ADOS1) and remove
 the visit (so that the new clinical variables are reported for all 6
 visits) \* merge the new dataset with the old
 
+``` r
+#First we select the columns we want
+visit1 <- select(MergedData, SUBJ, VISIT, ADOS, MullenRaw, ExpressiveLangRaw, Socialization)
+
+#Now we specify that we only want visit 1 using filter
+visit1 <- filter(visit1, VISIT == 1)
+
+#Rename variables
+visit1 <- rename(visit1, ADOS1 = ADOS, MullenRaw1 = MullenRaw, ExpressiveLangRaw1 = ExpressiveLangRaw, Socialization1 = Socialization)
+
+#We remove VISIT
+visit1 <- select(visit1, SUBJ, ADOS1, MullenRaw1, ExpressiveLangRaw1, Socialization1)
+
+#We now merge the new data with the old data
+NewMergedData <- merge(MergedData, visit1)
+```
+
 2g. Final touches
 
 Now we want to \* anonymize our participants (they are real children!).
@@ -227,6 +283,24 @@ also change the values of Diagnosis from A and B to ASD (autism spectrum
 disorder) and TD (typically developing). Tip: Try taking a look at
 ifelse(), or google “how to rename levels in R”. \* Save the data set
 using into a csv file. Hint: look into write.csv()
+
+``` r
+#We anonymize the children
+NewMergedData$SUBJ <- as.factor(NewMergedData$SUBJ)
+levels(NewMergedData$SUBJ)<- c(1:62)
+
+#Changing 1 and 2 to Male and Female
+NewMergedData$Gender <- str_replace_all(NewMergedData$Gender, "1", "Male")
+NewMergedData$Gender <- str_replace_all(NewMergedData$Gender, "2", "Female")
+
+#Changing A and B to ASD and TD
+NewMergedData$Diagnosis <- str_replace_all(NewMergedData$Diagnosis, "A", "ASD")
+NewMergedData$Diagnosis <- str_replace_all(NewMergedData$Diagnosis, "B", "TD")
+
+#We now save the data to a csv-file
+clean_data <- NewMergedData
+write.csv(clean_data, file = "A1_clean_data")
+```
 
 1.  BONUS QUESTIONS The aim of this last section is to make sure you are
     fully fluent in the tidyverse. Here’s the link to a very helpful
