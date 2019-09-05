@@ -107,11 +107,11 @@ participants:
 <a href="https://www.dropbox.com/s/8ng1civpl2aux58/token_train.csv?dl=0" class="uri">https://www.dropbox.com/s/8ng1civpl2aux58/token_train.csv?dl=0</a>
 
 ``` r
-demographic <- read.csv("demo_train.csv")
+demographic <- read.csv("data/demo_train.csv")
 
-length_utterance <- read.csv("LU_train.csv")
+length_utterance <- read.csv("data/LU_train.csv")
 
-worddata <- read.csv("token_train.csv")
+worddata <- read.csv("data/token_train.csv")
 ```
 
 Explore the 3 datasets (e.g. visualize them, summarize them, etc.). You
@@ -139,6 +139,12 @@ Alternatively you can look into the package dplyr (part of tidyverse),
 or google “how to rename variables in R”. Or check the janitor R
 package. There are always multiple ways of solving any problem and no
 absolute best method.
+
+``` r
+plot(demographic$Ethnicity, demographic$Diagnosis)
+```
+
+![](Assignment-1_files/figure-markdown_github/unnamed-chunk-3-1.png)
 
 2b. Find a way to homogeneize the way “visit” is reported (visit1
 vs. 1).

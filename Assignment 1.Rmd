@@ -72,11 +72,11 @@ Load the three data sets, after downloading them from dropbox and saving them in
 * Word data: https://www.dropbox.com/s/8ng1civpl2aux58/token_train.csv?dl=0
 
 ```{r}
-demographic <- read.csv("demo_train.csv")
+demographic <- read.csv("data/demo_train.csv")
 
-length_utterance <- read.csv("LU_train.csv")
+length_utterance <- read.csv("data/LU_train.csv")
 
-worddata <- read.csv("token_train.csv")
+worddata <- read.csv("data/token_train.csv")
 
 ```
 
