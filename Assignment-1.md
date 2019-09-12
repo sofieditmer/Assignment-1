@@ -290,8 +290,8 @@ NewMergedData$SUBJ <- as.factor(NewMergedData$SUBJ)
 levels(NewMergedData$SUBJ)<- c(1:62)
 
 #Changing 1 and 2 to Male and Female
-NewMergedData$Gender <- str_replace_all(NewMergedData$Gender, "1", "Male")
-NewMergedData$Gender <- str_replace_all(NewMergedData$Gender, "2", "Female")
+NewMergedData$Gender <- str_replace_all(NewMergedData$Gender, "1", "M")
+NewMergedData$Gender <- str_replace_all(NewMergedData$Gender, "2", "F")
 
 #Changing A and B to ASD and TD
 NewMergedData$Diagnosis <- str_replace_all(NewMergedData$Diagnosis, "A", "ASD")
@@ -299,7 +299,7 @@ NewMergedData$Diagnosis <- str_replace_all(NewMergedData$Diagnosis, "B", "TD")
 
 #We now save the data to a csv-file
 clean_data <- NewMergedData
-write.csv2(clean_data, file = "A1_clean_data.csv")
+write.csv(clean_data, file = "A1_clean_data.csv")
 ```
 
 1.  BONUS QUESTIONS The aim of this last section is to make sure you are
