@@ -299,7 +299,7 @@ NewMergedData$Diagnosis <- str_replace_all(NewMergedData$Diagnosis, "B", "TD")
 
 #We now save the data to a csv-file
 clean_data <- NewMergedData
-write.csv(clean_data, file = "A1_clean_data")
+write.csv2(clean_data, file = "A1_clean_data.csv")
 ```
 
 1.  BONUS QUESTIONS The aim of this last section is to make sure you are
